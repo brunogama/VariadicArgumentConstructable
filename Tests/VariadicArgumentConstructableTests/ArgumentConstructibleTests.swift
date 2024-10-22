@@ -9,11 +9,11 @@ struct ArgumentConstructibleTests {
  
     @Test("Test some random values",
           arguments: zip(
-            FakerFactory.createFaker().randomListOfFullNames(),
-            FakerFactory.createFaker().randomListOfYers()
+            RandomGeneratorFactory.shared.randomList(of: .string),
+            RandomGeneratorFactory.shared.randomList(of: .int)
           )
     )
-    func validTypeCreation(name: String, birthDay: Int) throws {
+    func validTypeCreation(name: RandomValue, birthDay: RandomValue) throws {
         struct Author: VariadicArgumentConstructable {
             let name: String
             let birthYear: Int
@@ -110,7 +110,7 @@ struct ArgumentConstructibleTests {
     
     @Test(
         "Test randomize labeled tupples array",
-        arguments: PairGeneratorFactory.shared.generateRandonPairs(ignoreTypes: [.string, .int])
+        arguments: RandomGeneratorFactory.shared.generateRandonPairs(ignoreTypes: [.string, .int])
     )
     func test_randomizedListOfLabeledTupleValus_shouldThrowError(valuePair: Pair<RandomValue, RandomValue>) async throws {
         struct Author: VariadicArgumentConstructable {
@@ -141,7 +141,7 @@ struct ArgumentConstructibleTests {
     
     @Test(
         "Test randomize tupples array",
-        arguments: PairGeneratorFactory.shared.generateRandonPairs(ignoreTypes: [.string, .int])
+        arguments: RandomGeneratorFactory.shared.generateRandonPairs(ignoreTypes: [.string, .int])
     )
     func test_randomizedListOfNotLabeledTupleValus_shouldThrowError(valuePair: Pair<RandomValue, RandomValue>) async throws {
         struct Author: VariadicArgumentConstructable {
