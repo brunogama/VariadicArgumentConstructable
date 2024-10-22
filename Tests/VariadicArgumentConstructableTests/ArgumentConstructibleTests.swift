@@ -4,28 +4,29 @@ import Fakery
 
 @testable import VariadicArgumentConstructable
 
+struct Author: VariadicArgumentConstructable {
+    let name: String
+    let birthYear: Int
+    
+    typealias ArgumentTypes = (name: String, birthYear: Int)
+    
+    static func construct<each T>(_ args: repeat each T) throws -> Self {
+        let (name, birthYear) = try unpack(repeat each args)
+        return Author(name: name, birthYear: birthYear)
+    }
+    
+    static func construct<each T>(_ builder: Builder<repeat each T>) throws -> Author {
+        try builder { parameters in
+            Author(name: parameters.name, birthYear: parameters.birthYear)
+        }
+    }
+}
+
 @Suite("ArgumentConstructibleTests", .serialized)
 struct ArgumentConstructibleTests {
  
-    @Test("Test some random values",
-          arguments: zip(
-            RandomGeneratorFactory.shared.randomList(of: .string),
-            RandomGeneratorFactory.shared.randomList(of: .int)
-          )
-    )
-    func validTypeCreation(name: RandomValue, birthDay: RandomValue) throws {
-        struct Author: VariadicArgumentConstructable {
-            let name: String
-            let birthYear: Int
-            
-            typealias ArgumentTypes = (name: String, birthYear: Int)
-            
-            static func construct<each T>(_ args: repeat each T) throws -> Self {
-                let (name, birthYear) = try unpack(repeat each args)
-                return Author(name: name, birthYear: birthYear)
-            }
-        }
-        
+    @Test("Test parametrized construct values")
+    func validTypeCreation() throws {
         let name = "John Doe"
         let birthYear = 1980
         let author = try Author.construct(name, birthYear)
@@ -33,19 +34,18 @@ struct ArgumentConstructibleTests {
         #expect(author.birthYear == birthYear)
     }
     
+    @Test("Test construct using builder  random values")
+    func testUsinConstructWithBuilderTypeCreation_shouldNotThrow() throws {
+        let name = "John Doe"
+        let birthYear = 1980
+        let builder = Builder(name, birthYear)
+        let author = try Author.construct(builder)
+        #expect(author.name == name)
+        #expect(author.birthYear == birthYear)
+    }
+    
     @Test("Test invalid parameter passed using ArgumentType with labeled tuples")
     func test_invalidArgumentType_ArgumentTypeWithLabeledTuples_shouldThrowError() throws {
-        struct Author: VariadicArgumentConstructable {
-            let name: String
-            let birthYear: Int
-            
-            typealias ArgumentTypes = (name: String, birthYear: Int)
-            
-            static func construct<each T>(_ args: repeat each T) throws -> Self {
-                let (name, birthYear) = try unpack(repeat each args)
-                return Author(name: name, birthYear: birthYear)
-            }
-        }
         
         #expect {
             try Author.construct(1, true)
@@ -60,17 +60,6 @@ struct ArgumentConstructibleTests {
     
     @Test("Test invalid parameter passed using ArgumentType without labeled tuples should throw error.")
     func test_invalidArgumentType_ArgumentTypeWithoutLabeledTuples_shouldThrowError() throws {
-        struct Author: VariadicArgumentConstructable {
-            let name: String
-            let birthYear: Int
-            
-            typealias ArgumentTypes = (String, Int)
-            
-            static func construct<each T>(_ args: repeat each T) throws -> Self {
-                let (name, birthYear) = try unpack(repeat each args)
-                return Author(name: name, birthYear: birthYear)
-            }
-        }
         
         #expect {
             try Author.construct(1, true)
@@ -84,17 +73,7 @@ struct ArgumentConstructibleTests {
     
     @Test("Test extra argument passed to construct with two first right types parameter passed using ArgumentType without labeled tuples should throw error.")
     func test_firstArgumentsValidAddingExtraInvalidArgumentType_ArgumentTypeWithoutLabeledTuples_shouldThrowError() throws {
-        struct Author: VariadicArgumentConstructable {
-            let name: String
-            let birthYear: Int
-            
-            typealias ArgumentTypes = (String, Int)
-            
-            static func construct<each T>(_ args: repeat each T) throws -> Self {
-                let (name, birthYear) = try unpack(repeat each args)
-                return Author(name: name, birthYear: birthYear)
-            }
-        }
+
         let name = "John Doe"
         let birthYear = 1980
         #expect {
@@ -113,17 +92,6 @@ struct ArgumentConstructibleTests {
         arguments: RandomGeneratorFactory.shared.generateRandonPairs(ignoreTypes: [.string, .int])
     )
     func test_randomizedListOfLabeledTupleValus_shouldThrowError(valuePair: Pair<RandomValue, RandomValue>) async throws {
-        struct Author: VariadicArgumentConstructable {
-            let name: String
-            let birthYear: Int
-            
-            typealias ArgumentTypes = (String, Int)
-            
-            static func construct<each T>(_ args: repeat each T) throws -> Self {
-                let (name, birthYear) = try unpack(repeat each args)
-                return Author(name: name, birthYear: birthYear)
-            }
-        }
         
         let value0 = try #require(valuePair.left)
         let value1 = try #require(valuePair.right)
@@ -144,17 +112,6 @@ struct ArgumentConstructibleTests {
         arguments: RandomGeneratorFactory.shared.generateRandonPairs(ignoreTypes: [.string, .int])
     )
     func test_randomizedListOfNotLabeledTupleValus_shouldThrowError(valuePair: Pair<RandomValue, RandomValue>) async throws {
-        struct Author: VariadicArgumentConstructable {
-            let name: String
-            let birthYear: Int
-            
-            typealias ArgumentTypes = (String, Int)
-            
-            static func construct<each T>(_ args: repeat each T) throws -> Self {
-                let (name, birthYear) = try unpack(repeat each args)
-                return Author(name: name, birthYear: birthYear)
-            }
-        }
         
         let value0 = try #require(valuePair.left)
         let value1 = try #require(valuePair.right)

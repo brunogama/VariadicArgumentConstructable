@@ -24,6 +24,12 @@
 ///         let (name, birthYear) = try unpack(repeat each args)
 ///         return Author(name: name, birthYear: birthYear)
 ///     }
+///
+///     static func construct<each T>(_ builder: Builder<repeat each T>) throws -> Self {
+///         try builder {
+///             Author(name: $0.name, birthYear: $0.birthYear)
+///         }
+///     }
 /// }
 /// ```
 public protocol VariadicArgumentConstructable: Sendable {
@@ -49,6 +55,9 @@ public protocol VariadicArgumentConstructable: Sendable {
     /// - Note:
     ///   The order and types of the arguments must exactly match those defined in `ArgumentTypes`.
     static func construct<each T>(_ args: repeat each T) throws -> Self
+    
+    @available(macOS 14.0.0, *)
+    static func construct<each T>(_ builder: Builder<repeat each T>) throws -> Self
 }
 
 extension VariadicArgumentConstructable {
