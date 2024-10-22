@@ -20,6 +20,12 @@ extension Author: VariadicArgumentConstructable {
         let (name, age) = try unpack(repeat each args)
         return Author(name: name, age: age)
     }
+    
+    static func construct<each T>(_ builder: Builder<repeat each T>) throws -> Author {
+        try builder { parameters in
+            Author(name: parameters.name, birthYear: parameters.birthYear)
+        }
+    }
 }
 
 protocol FactoryProtocol {
@@ -28,7 +34,7 @@ protocol FactoryProtocol {
 
 final class Factory: FactoryProtocol {
     func produce<Output: VariadicArgumentConstructable, each T>(_ value: repeat each T) throws -> Output {
-        return try Output.construct(repeat each value)
+        return try Output.construct(Builder(repeat each value))
     }
 }
 
