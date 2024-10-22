@@ -7,13 +7,13 @@
 
 @available(macOS 14.0.0, *)
 public struct Builder<each T> {
-    var item: (repeat each T)
+    private var item: (repeat each T)
     
-    init(_ item: repeat each T) {
+    public init(_ item: repeat each T) {
         self.item = (repeat each item)
     }
     
-    func callAsFunction<Out: VariadicArgumentConstructable>(
+    public func callAsFunction<Out: VariadicArgumentConstructable>(
         _ f: @escaping (_ args: Out.ArgumentTypes) -> Out
     ) throws -> Out {
         let tuple = (repeat each item)
